@@ -39,7 +39,7 @@ pipeline {
             steps {
                 script {
                     // Running Maven build to compile and package your application
-                    sh "mvn clean install"
+                    sh "mvn clean package"
                 }
             }
         }
