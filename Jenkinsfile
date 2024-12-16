@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git 'https://github.com/Sriram8788/3-Tier-Full-Stack.git'
+                git clone 'https://github.com/Sriram8788/3-Tier-Full-Stack.git'
             }
         }
 
