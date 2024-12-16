@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         nodejs 'nodejs'  // Ensure nodejs is properly configured in Jenkins
-        maven 'maven'  // Ensure Maven is properly configured in Jenkins
+        //maven 'maven'  // Ensure Maven is properly configured in Jenkins
     }
 
     /*environment {
@@ -42,14 +42,14 @@ pipeline {
             }
         }
 
-        stage('Maven Build') {
+        /*stage('Maven Build') {
             steps {
                 script {
                     // Running Maven build to compile and package your application
                     sh "mvn clean package"
                 }
             }
-        }
+        }*/
 
         stage('Docker Build & Tag') {
             steps {
