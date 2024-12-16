@@ -2,17 +2,18 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'node21'
+        nodejs 'nodejs'  // Ensure nodejs is properly configured in Jenkins
+        maven 'maven'  // Ensure Maven is properly configured in Jenkins
     }
 
-    environment {
-        SCANNER_HOME = tool 'sonar-scanner'
-    }
+    /*environment {
+        SCANNER_HOME = tool 'sonar-scanner'  // Keep this if you plan to re-enable SonarQube in the future
+    }*/
 
     stages {
         stage('Git Checkout') {
             steps {
-                git clone 'https://github.com/Sriram8788/3-Tier-Full-Stack.git'
+                git 'https://github.com/Sriram8788/3-Tier-Full-Stack.git'
             }
         }
 
@@ -34,13 +35,14 @@ pipeline {
             }
         }
 
-        /*stage('SonarQube') {
+        stage('Maven Build') {
             steps {
-                withSonarQubeEnv('sonar') {
-                    sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=Campground -Dsonar.projectName=Campground"
+                script {
+                    // Running Maven build to compile and package your application
+                    sh "mvn clean install"
                 }
             }
-        }*/
+        }
 
         stage('Docker Build & Tag') {
             steps {
