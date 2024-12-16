@@ -11,9 +11,16 @@ pipeline {
     }*/
 
     stages {
-        stage('Git Checkout') {
+        stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/Sriram8788/3-Tier-Full-Stack.git'
+                // Use Git SCM to check out code from a public repository
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']], // Replace 'main' with your branch name
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Sriram8788/3-Tier-Full-Stack.git' // Public repository URL
+                    ]]
+                ])
             }
         }
 
