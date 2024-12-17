@@ -85,5 +85,27 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy To EKS') {
+            steps {
+                withKubeCredentials(kubectlCredentials: [
+                    [caCertificate: '', clusterName: 'my-eks22', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', serverUrl: 'https://80463D4E61B703ABB582BE4481F43614.yl4.us-east-1.eks.amazonaws.com']
+                ]) {
+                    sh "kubectl apply -f Manifests/"
+                    sleep 60 // Wait for the deployment to stabilize
+                }
+            }
+        }
+
+        stage('Verify the Deployment') {
+            steps {
+                withKubeCredentials(kubectlCredentials: [
+                    [caCertificate: '', clusterName: 'my-eks22', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', serverUrl: 'https://80463D4E61B703ABB582BE4481F43614.yl4.us-east-1.eks.amazonaws.com']
+                ]) {
+                    sh "kubectl get pods -n webapps"
+                    sh "kubectl get svc -n webapps"
+                }
+            }
+        }
     }
 }
