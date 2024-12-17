@@ -6,9 +6,9 @@ pipeline {
         //maven 'maven'  // Ensure Maven is properly configured in Jenkins
     }
 
-    /*environment {
+    environment {
         SCANNER_HOME = tool 'sonar-scanner'  // Keep this if you plan to re-enable SonarQube in the future
-    }*/
+    }
 
     stages {
         stage('Checkout Code') {
