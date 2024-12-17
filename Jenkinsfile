@@ -6,9 +6,9 @@ pipeline {
         //maven 'maven'  // Ensure Maven is properly configured in Jenkins
     }
 
-    environment {
-        SCANNER_HOME = tool 'SonarScanner'  // Keep this if you plan to re-enable SonarQube in the future
-    }
+    /*environment {
+        SCANNER_HOME = tool 'sonar-scanner'  // Keep this if you plan to re-enable SonarQube in the future
+    }*/
 
     stages {
         stage('Checkout Code') {
@@ -42,13 +42,10 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('SonarQube') {
             steps {
-                script {
-                    def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('SonarQube') {
-                        sh "${scannerHome}/bin/SonarScanner"
-                    }
+                withSonarQubeEnv('sonar') {
+                    sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=Campground -Dsonar.projectName=Campground"
                 }
             }
         }
