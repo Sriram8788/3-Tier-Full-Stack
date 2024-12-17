@@ -6,9 +6,9 @@ pipeline {
         //maven 'maven'  // Ensure Maven is properly configured in Jenkins
     }
 
-    /*environment {
+    environment {
         SCANNER_HOME = tool 'sonar-scanner'  // Keep this if you plan to re-enable SonarQube in the future
-    }*/
+    }
 
     stages {
         stage('Checkout Code') {
@@ -41,15 +41,12 @@ pipeline {
                 sh "trivy fs --format table -o fs-report.html ."
             }
         }
-
-        /*stage('Maven Build') {
-            steps {
-                script {
-                    // Running Maven build to compile and package your application
-                    sh "mvn clean package"
+        stage('SonarQube Analysis') {
+           def scannerHome = tool 'SonarScanner';
+            withSonarQubeEnv() {
+                sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
-        }*/
 
         stage('Docker Build & Tag') {
             steps {
