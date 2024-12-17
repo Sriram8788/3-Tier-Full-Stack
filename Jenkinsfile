@@ -41,12 +41,17 @@ pipeline {
                 sh "trivy fs --format table -o fs-report.html ."
             }
         }
+
         stage('SonarQube Analysis') {
-           def scannerHome = tool 'SonarScanner';
-            withSonarQubeEnv() {
-                sh "${scannerHome}/bin/sonar-scanner"
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
                 }
             }
+        }
 
         stage('Docker Build & Tag') {
             steps {
