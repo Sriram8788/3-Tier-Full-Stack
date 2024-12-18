@@ -76,7 +76,7 @@ pipeline {
             }
         }
 
-        stage('Docker Deploy To Local') {
+        /*stage('Docker Deploy To Local') {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
@@ -84,7 +84,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 
         stage('Deploy To EKS') {
             steps {
