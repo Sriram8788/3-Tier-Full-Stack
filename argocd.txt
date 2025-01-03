@@ -1,0 +1,368 @@
+### **Argo CD Commands List**
+
+Here’s a list of commonly used **Argo CD CLI commands**:
+
+---
+
+#### **1. Login and Configuration**
+- **Login to Argo CD server**  
+  ```bash
+  argocd login <ARGOCD_SERVER> --username <USERNAME> --password <PASSWORD>
+  ```
+- **Set default project or cluster context**  
+  ```bash
+  argocd context --set <CONTEXT_NAME>
+  ```
+- **List current contexts**  
+  ```bash
+  argocd context
+  ```
+
+---
+
+#### **2. Application Management**
+- **Create an application**  
+  ```bash
+  argocd app create <APP_NAME> \
+    --repo <REPO_URL> \
+    --path <PATH_IN_REPO> \
+    --dest-server <K8S_CLUSTER_URL> \
+    --dest-namespace <NAMESPACE>
+  ```
+- **List all applications**  
+  ```bash
+  argocd app list
+  ```
+- **Get details of an application**  
+  ```bash
+  argocd app get <APP_NAME>
+  ```
+- **Sync an application**  
+  ```bash
+  argocd app sync <APP_NAME>
+  ```
+- **Delete an application**  
+  ```bash
+  argocd app delete <APP_NAME>
+  ```
+
+---
+
+#### **3. Application Operations**
+- **Pause automated sync**  
+  ```bash
+  argocd app pause <APP_NAME>
+  ```
+- **Resume automated sync**  
+  ```bash
+  argocd app resume <APP_NAME>
+  ```
+- **Check the sync status**  
+  ```bash
+  argocd app sync-status <APP_NAME>
+  ```
+- **Force sync**  
+  ```bash
+  argocd app sync <APP_NAME> --force
+  ```
+
+---
+
+#### **4. Cluster Management**
+- **Add a Kubernetes cluster**  
+  ```bash
+  argocd cluster add <K8S_CLUSTER_CONTEXT>
+  ```
+- **List all clusters**  
+  ```bash
+  argocd cluster list
+  ```
+- **Remove a cluster**  
+  ```bash
+  argocd cluster rm <K8S_CLUSTER_CONTEXT>
+  ```
+
+---
+
+#### **5. Projects Management**
+- **Create a new project**  
+  ```bash
+  argocd proj create <PROJECT_NAME>
+  ```
+- **List all projects**  
+  ```bash
+  argocd proj list
+  ```
+- **Add a destination to a project**  
+  ```bash
+  argocd proj add-destination <PROJECT_NAME> <SERVER_URL> <NAMESPACE>
+  ```
+- **Delete a project**  
+  ```bash
+  argocd proj delete <PROJECT_NAME>
+  ```
+
+---
+
+#### **6. Repository Management**
+- **Add a Git repository**  
+  ```bash
+  argocd repo add <REPO_URL> --username <USERNAME> --password <PASSWORD>
+  ```
+- **List all repositories**  
+  ```bash
+  argocd repo list
+  ```
+- **Remove a repository**  
+  ```bash
+  argocd repo rm <REPO_URL>
+  ```
+
+---
+
+### **Argo CD Architecture**
+
+The architecture of Argo CD is designed to manage Kubernetes resources declaratively. Below is a breakdown of its key components:
+
+---
+
+#### **1. User Interface**
+- **Web UI**:  
+  A user-friendly dashboard for managing applications, clusters, and sync operations.  
+- **CLI**:  
+  Command-line interface for executing all actions programmatically.  
+
+#### **2. Core Components**
+- **API Server**:  
+  Exposes REST API endpoints to interact with Argo CD.  
+- **Repository Server**:  
+  Fetches manifests from Git repositories and handles Helm chart rendering.  
+- **Controller**:  
+  Watches applications and syncs Kubernetes clusters with the desired state.  
+
+#### **3. Data Stores**
+- **Git Repository**:  
+  Stores the desired state of the application in manifest files or Helm charts.  
+- **Cluster State**:  
+  Argo CD fetches the live state of resources from Kubernetes clusters.
+
+#### **4. Kubernetes Integration**
+- **Custom Resource Definitions (CRDs)**:  
+  Argo CD uses CRDs such as `Application` and `ApplicationSet` to define application configurations.  
+- **Namespaces**:  
+  Applications are deployed into specified namespaces.  
+
+#### **5. Sync Mechanism**
+- **Declarative Sync**:  
+  Ensures the live state matches the desired state defined in Git repositories.  
+- **Automated Sync Policies**:  
+  Automatically syncs resources and performs self-healing.
+
+---
+
+### **Architecture Diagram**
+
+To visualize the architecture:  
+1. **Git Repository** serves as the source of truth for application configurations.  
+2. **API Server** communicates with users via CLI/Web UI.  
+3. **Repository Server** processes manifests from the Git repository.  
+4. **Controller** performs reconciliation by applying changes to Kubernetes clusters.  
+5. **Kubernetes Cluster** contains the deployed resources, which are monitored by Argo CD.
+
+Let me know if you'd like a detailed diagram or explanation for specific components!
+Here’s a concise version of the notes with YAML code for quick reference:  
+
+---
+
+### **1. Deploying with Kubernetes Manifest Files**
+
+**YAML Example:**  
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-manifests
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-repo/nginx-k8s-manifests
+    targetRevision: HEAD
+    path: manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+---
+
+### **2. Deploying with Helm Charts**
+
+#### **a. From a Git Repository**  
+**YAML Example:**  
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-helm
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-repo/nginx-helm-chart
+    targetRevision: HEAD
+    path: charts/nginx
+    helm:
+      parameters:
+        - name: replicaCount
+          value: "3"
+        - name: service.type
+          value: LoadBalancer
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+#### **b. From a Helm Repository**  
+**YAML Example:**  
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-helm-repo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: nginx
+    targetRevision: 13.2.8
+    helm:
+      parameters:
+        - name: replicaCount
+          value: "2"
+        - name: service.type
+          value: ClusterIP
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+---
+
+### **3. Deploying Across Multiple Clusters**
+
+#### **Add Target Cluster**  
+```bash
+argocd cluster add <target-cluster-context>
+argocd cluster list
+```
+
+#### **Deploy Application to Target Cluster**  
+**YAML Example:**  
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-repo/nginx-app
+    targetRevision: HEAD
+    path: manifests
+  destination:
+    server: https://<target-cluster-server-url>
+    namespace: nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+---
+
+### **4. Blue-Green Deployment with Argo CD**
+
+**ApplicationSet YAML Example:**  
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: nginx-bluegreen
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: blue
+            namespace: nginx-blue
+            values:
+              version: "1.21.6-blue"
+          - cluster: green
+            namespace: nginx-green
+            values:
+              version: "1.21.6-green"
+  template:
+    metadata:
+      name: nginx-{{ cluster }}
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/your-repo/nginx-bluegreen
+        targetRevision: HEAD
+        path: manifests/{{ cluster }}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: nginx-{{ namespace }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+```
+
+#### **Switch Traffic**  
+Modify the Kubernetes service selector to change traffic between blue and green environments:  
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: default
+spec:
+  selector:
+    app: nginx-blue # Change to nginx-green after verification
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+```
+
+---
+
+### **5. Sync and Verify Deployments**
+
+- **Sync Application:**  
+  ```bash
+  argocd app sync nginx-app
+  ```
+
+- **Verify Resources:**  
+  ```bash
+  kubectl get all -n <namespace>
+  ```
+
+Let me know if you'd like further clarifications!
